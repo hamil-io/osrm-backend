@@ -234,7 +234,9 @@ void AnnotatedPartition::SearchLevels(const std::vector<SizedID> &implicit_tree,
                 const auto left = leftChild(element.first, element.second);
                 const auto right = rightChild(element.first, element.second);
 
-                const auto get_penalty = [avg_size](const auto size) { return std::abs(size - avg_size); };
+                const auto get_penalty = [avg_size](const auto size) {
+                    return std::abs(size - avg_size);
+                };
 
                 if (get_penalty(size) <
                     0.5 * (get_penalty(getCellSize(implicit_tree, left, element.second)) +

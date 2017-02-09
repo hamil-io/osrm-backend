@@ -12,8 +12,7 @@ namespace osrm
 {
 namespace partition
 {
-void printBisectionStats(std::vector<BisectionID> const &bisection_ids,
-                         const BisectionGraph &graph)
+void printBisectionStats(std::vector<BisectionID> const &bisection_ids, const BisectionGraph &graph)
 {
     BOOST_ASSERT(graph.NumberOfNodes() == bisection_ids.size());
     std::size_t total_border_nodes = 0;
@@ -79,18 +78,17 @@ void printBisectionStats(std::vector<BisectionID> const &bisection_ids,
         std::size_t min_size = -1, max_size = 0, total_size = 0;
         std::size_t min_border = -1, max_border = 1, total_border = 0;
 
-        const auto summarize =
-            [](const std::unordered_map<BisectionID, std::size_t> &map,
-               std::size_t &min,
-               std::size_t &max,
-               std::size_t &total) {
-                for (const auto itr : map)
-                {
-                    min = std::min(min, itr.second);
-                    max = std::max(max, itr.second);
-                    total += itr.second;
-                }
-            };
+        const auto summarize = [](const std::unordered_map<BisectionID, std::size_t> &map,
+                                  std::size_t &min,
+                                  std::size_t &max,
+                                  std::size_t &total) {
+            for (const auto itr : map)
+            {
+                min = std::min(min, itr.second);
+                max = std::max(max, itr.second);
+                total += itr.second;
+            }
+        };
 
         summarize(cell_sizes[level], min_size, max_size, total_size);
         summarize(border_nodes[level], min_border, max_border, total_border);
