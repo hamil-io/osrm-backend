@@ -84,6 +84,27 @@ class AnnotatedPartition
             os << std::endl;
             return os;
         }
+
+        std::ostream &logMachinereadable(std::ostream &os,
+                                         const std::string &identification,
+                                         std::size_t depth,
+                                         const bool print_header = false) const
+        {
+            if (print_header)
+                os << "[" << identification << "] # depth cells total_nodes border_nodes "
+                                               "max_border_nodes border_arcs max_border_arcs bytes "
+                                               "cell_sizes*\n";
+
+            os << "[" << identification << "] " << depth << " " << number_of_cells << " " << contained_nodes
+               << " " << border_nodes << " " << max_border_nodes_per_cell << " " << border_arcs << " "
+               << max_border_arcs_per_cell << " " << total_memory_cells;
+
+            for (auto s : cell_sizes)
+                os << " " << s;
+
+            os << "\n";
+            return os;
+        }
     };
 
     AnnotatedPartition(const BisectionGraph &graph, const std::vector<BisectionID> &bisection_ids);

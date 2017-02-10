@@ -9,6 +9,7 @@
 #include <map>
 #include <numeric>
 #include <queue>
+#include <string>
 #include <unordered_map>
 
 namespace osrm
@@ -136,7 +137,7 @@ void AnnotatedPartition::PrintBisection(const std::vector<SizedID> &implicit_tre
                                         const std::vector<BisectionID> &bisection_ids) const
 {
     // print some statistics on the bisection tree
-    std::cout << "[Unmodified Bisection]:\n";
+    //std::cout << "[Unmodified Bisection]:\n";
 
     std::queue<BisectionID> id_queue;
     id_queue.push(0);
@@ -170,7 +171,8 @@ void AnnotatedPartition::PrintBisection(const std::vector<SizedID> &implicit_tre
         {
             const auto cell_ids = ComputeCellIDs(current_level, graph, bisection_ids);
             const auto stats = AnalyseLevel(graph, cell_ids);
-            stats.print(std::cout);
+            stats.logMachinereadable(std::cout, "bisection", level, level == 0);
+            //stats.print(std::cout);
         }
     }
 }
@@ -180,17 +182,20 @@ void AnnotatedPartition::SearchLevels(const std::vector<SizedID> &implicit_tree,
                                       const std::vector<BisectionID> &bisection_ids) const
 {
     std::vector<std::pair<BisectionID, std::uint32_t>> current_level;
-    std::cout << "[balanced via DFS]\n";
+    //std::cout << "[balanced via DFS]\n";
 
     // start searching with level 0 at prefix 0
     current_level.push_back({static_cast<BisectionID>(0), 0u});
+    std::size_t level = 0;
 
     const auto print_level = [&]() {
         if (current_level.empty())
             return;
         const auto cell_ids = ComputeCellIDs(current_level, graph, bisection_ids);
         const auto stats = AnalyseLevel(graph, cell_ids);
-        stats.print(std::cout);
+        //stats.print(std::cout);
+        stats.logMachinereadable(std::cout, "dfs-balanced", level, level == 0);
+        ++level;
     };
 
     std::size_t max_size = 0.5 * graph.NumberOfNodes();

@@ -66,6 +66,24 @@ CompressedNodeBasedGraph LoadCompressedNodeBasedGraph(const std::string &path)
     return graph;
 }
 
+void LogStatistics(const std::string &filename, std::vector<std::uint32_t> bisection_ids)
+{
+    auto compressed_node_based_graph = LoadCompressedNodeBasedGraph(filename);
+
+    util::Log() << "Loaded compressed node based graph: "
+                << compressed_node_based_graph.edges.size() << " edges, "
+                << compressed_node_based_graph.coordinates.size() << " nodes";
+
+    groupEdgesBySource(begin(compressed_node_based_graph.edges),
+                       end(compressed_node_based_graph.edges));
+
+    auto graph =
+        makeBisectionGraph(compressed_node_based_graph.coordinates,
+                           adaptToBisectionEdge(std::move(compressed_node_based_graph.edges)));
+
+    AnnotatedPartition partition(graph, bisection_ids);
+}
+
 void LogGeojson(const std::string &filename, std::vector<std::uint32_t> bisection_ids)
 {
     // reload graph, since we destroyed the old one
@@ -87,8 +105,6 @@ void LogGeojson(const std::string &filename, std::vector<std::uint32_t> bisectio
         std::uint32_t level = log(xored) / log(2.0);
         return level;
     };
-
-    AnnotatedPartition partition(graph, bisection_ids);
 
     std::vector<std::vector<util::Coordinate>> border_vertices(33);
 
@@ -142,6 +158,10 @@ int Partitioner::Run(const PartitionConfig &config)
         makeBisectionGraph(compressed_node_based_graph.coordinates,
                            adaptToBisectionEdge(std::move(compressed_node_based_graph.edges)));
 
+    util::Log() << " running partition: " << config.maximum_cell_size << " " << config.balance
+                << " " << config.boundary_factor << " " << config.num_optimizing_cuts << " "
+                << config.small_component_size
+                << " # max_cell_size balance boundary cuts small_component_size";
     RecursiveBisection recursive_bisection(graph,
                                            config.maximum_cell_size,
                                            config.balance,
@@ -149,8 +169,8 @@ int Partitioner::Run(const PartitionConfig &config)
                                            config.num_optimizing_cuts,
                                            config.small_component_size);
 
-    LogGeojson(config.compressed_node_based_graph_path.string(),
-               recursive_bisection.BisectionIDs());
+    LogStatistics(config.compressed_node_based_graph_path.string(),
+                  recursive_bisection.BisectionIDs());
 
     return 0;
 }
